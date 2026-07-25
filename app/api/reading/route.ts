@@ -17,21 +17,21 @@ type ReadingResult = {
 };
 
 function localReading(question: string, cards: CardInput[]): ReadingResult {
-  const cardMeanings = cards.map((card, index) => {
-    const time = ["過去的經驗", "此刻的你", "未來的可能"][index];
-    const flow = card.reversed
-      ? "它以逆位出現，提醒你先看見內在的阻力，不必急著逼自己得到答案"
-      : "它以正位出現，表示這份力量已經在你身邊，可以放心地回應它";
-    return `${time}與「${card.keywords.join("、")}」有關。${flow}。`;
-  });
+  const orientation = (card: CardInput) =>
+    card.reversed
+      ? "逆位暗示這股能量可能受阻、被壓抑，或正以較不舒服的方式浮現"
+      : "正位表示這股能量正在自然地推動事情發展";
 
   return {
-    cardMeanings,
-    pastSummary: `面對「${question}」，${cards[0].name}顯示過去的你曾受到「${cards[0].keywords.join("、")}」影響。那段經驗形成了你現在看待問題的方式，也留下值得理解的線索。`,
-    presentSummary: `${cards[1].name}指出，你此刻正站在需要「${cards[1].keywords.join("、")}」的位置。比起急著找到唯一答案，更重要的是誠實看見自己真正的需求。`,
-    futureSummary: `${cards[2].name}呈現的不是固定命運，而是目前選擇延伸出的可能。如果你願意帶著「${cards[2].keywords.join("、")}」前進，局面將逐漸出現新的空間。`,
-    overallSummary: "這三張牌把你的問題連成一條清楚的路：過去提供了線索，現在要求你做出有意識的選擇，而未來仍保留在你的手中。",
-    advice: `先為「${question}」寫下一個這週能完成的小行動。不要追求一次解決所有事情，先用真實、可持續的一步，回應你心裡最重視的價值。`,
+    cardMeanings: cards.map(
+      (card, index) =>
+        `${["過去", "現在", "未來"][index]}位置的${card.name}${card.reversed ? "（逆位）" : "（正位）"}，核心關鍵是「${card.keywords.join("、")}」。${orientation(card)}。`,
+    ),
+    pastSummary: `針對「${question}」，${cards[0].name}讓人聯想到：你過去可能曾面對一段與「${cards[0].keywords.join("、")}」有關的經驗。也許你努力維持某個局面、承擔了比預期更多的責任，或曾因一次沒有得到回應的期待而變得謹慎。這不一定是單一事件，也可能是一段逐漸累積的感受；它至今仍影響你判斷安全感與機會的方式。`,
+    presentSummary: `現在的${cards[1].name}指出，你可能正處在「想前進、又怕選錯」的拉扯裡。表面上你在處理現實問題，內心真正的挑戰卻可能是如何相信自己的判斷，以及如何在他人的期待和自己的需求之間劃出界線。「${cards[1].keywords.join("、")}」是此刻最需要正視的主題。`,
+    futureSummary: `${cards[2].name}描繪的未來不是突然降臨的結果，而是一個逐步成形的場景：接下來可能出現新的邀請、一次重要對話，或讓你重新安排優先順序的轉折。當「${cards[2].keywords.join("、")}」的能量變得明顯，你會更清楚哪些道路值得投入、哪些關係或習慣該放下。這是可能性，不是已寫死的命運。`,
+    overallSummary: `三張牌串起的是一段「從過去的防備，走向現在的重新選擇，再進入未來的新局面」的旅程。你問的表面也許是一個決定，但更深層的課題，是不再只用舊經驗保護自己，而是用現在真正想要的生活來決定下一步。`,
+    advice: `先不要逼自己一次得到完整答案。請在一週內完成一個可驗證的小行動：寫下你最害怕發生的結果、最希望出現的結果，以及你能主動做的一件事；接著安排一次必要的詢問、對話或嘗試。塔羅指出的是趨勢，真正改變未來的，仍是你接下來願意採取的行動。`,
   };
 }
 
@@ -57,20 +57,30 @@ export async function POST(request: NextRequest) {
         input: [
           {
             role: "system",
-            content: `你是一位溫柔、務實、擅長敘事的繁體中文塔羅解讀者。塔羅是自我探索工具，不做確定預言，也不取代醫療、法律或財務專業意見。
+            content: `你是一位直覺敏銳、溫暖而敢於具體推演的繁體中文塔羅解讀師。
 
-請緊扣使用者的實際問題，把三張牌串成一條有因果關係的故事。pastSummary、presentSummary、futureSummary 各 90–150 個中文字；overallSummary 80–130 字；advice 需提供 1–2 個清楚、可執行的下一步。cardMeanings 各 50–90 字，說明牌本身與牌位含意。
+你的任務不是只解釋牌義，而是把使用者的問題、生日、名字，以及三張牌連成一段有情境、有心理洞察的故事。可以大膽推測，但每個推測都必須使用「可能、也許、看起來像、牌面讓人聯想到」等措辭，不能把推測冒充為已知事實，也不能聲稱能確定預言未來。
 
-只輸出合法 JSON，不要 markdown。格式必須是：
+寫作要求：
+1. pastSummary（約 180–280 字）：推測過去「可能發生過什麼」。描繪 1–2 個具體但合理的場景，例如關係變化、失望、責任壓力、錯過機會、長期努力或某次轉折；說明它如何塑造現在的反應模式。
+2. presentSummary（約 180–280 字）：深入描述當前心境、矛盾、隱藏需求和現實挑戰。區分表面問題與更深層的情緒或信念，讓使用者感到被理解。
+3. futureSummary（約 180–280 字）：描繪接下來可能出現的具體情境、人物互動、機會或轉折，以及「採取行動」和「維持現狀」可能帶來的不同發展。未來是趨勢，不是宿命。
+4. overallSummary（約 160–240 字）：把過去、現在、未來串成一條清楚的因果與成長軸線，直接回應使用者真正想問的核心。
+5. advice（約 120–200 字）：給 2–3 個具體、近期可執行的行動，避免只有「相信自己、順其自然」之類空泛句子。
+6. cardMeanings：三段，每段約 60–100 字，解釋該牌在其時間位置、正逆位與本次問題中的意義。
+7. 語氣可以有神祕感與戲劇性，但不要恐嚇，不做醫療、法律、投資保證，也不要捏造精確日期、姓名或不可驗證的重大事件。
+8. 避免每段重複牌名與關鍵字；優先寫情境、心理和因果。
+
+只輸出合法 JSON，不加 markdown，格式：
 {"cardMeanings":["","",""],"pastSummary":"","presentSummary":"","futureSummary":"","overallSummary":"","advice":""}`,
           },
           {
             role: "user",
             content: JSON.stringify({
-              稱呼: body.name,
+              姓名: body.name,
               生日: body.birthday,
               問題: body.question,
-              牌面: cards.map((card, index) => ({
+              抽牌: cards.map((card, index) => ({
                 位置: ["過去", "現在", "未來"][index],
                 牌名: card.name,
                 英文牌名: card.en,
