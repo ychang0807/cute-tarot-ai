@@ -165,28 +165,32 @@ export default function Home() {
       <div className="stars" aria-hidden="true">
         {stars.map((star, i) => <i key={i} style={{ left: star.left, top: star.top, animationDelay: star.delay }} />)}
       </div>
-      <header className="brand"><span>✦</span> 可愛塔羅AI <span>☾</span></header>
+      <header className="brand"><span>⚜</span> 可愛塔羅AI <span>⚜</span></header>
 
       {(stage === "welcome" || stage === "form") && (
         <section className="hero">
           <div className="hero-art">
-            <img src="/wizard-crystal.png" alt="可愛的小巫師守護著發光的水晶球" />
+            <img src="/lady-elara-medieval.png" alt="中古世紀占卜師艾拉女士在水晶球前迎接訪客" />
             <div className="orb-pulse" />
           </div>
           <div className="hero-copy">
-            <p className="eyebrow">A LITTLE MAGIC FOR YOUR HEART</p>
-            <h1>把心裡的困惑<br /><em>交給星星。</em></h1>
-            <p className="intro">靜下來想著你的問題，讓 78 張塔羅牌陪你看見過去、現在，與即將展開的可能。</p>
+            <p className="eyebrow">THE ORACLE OF THE OLD TOWER</p>
+            <h1>歡迎來到<br /><em>艾拉的占卜室</em></h1>
+            <div className="welcome-message">
+              <span className="wax-seal">E</span>
+              <p>「旅人，歡迎你。我是守護古塔星盤的占卜師<strong>艾拉女士</strong>。請坐到燭火旁，把困擾你的事交給我——今晚，牌會替你說出那些尚未被看見的線索。」</p>
+            </div>
+            <p className="intro">從完整的 78 張塔羅牌中親手選出三張，讓我們沿著過去、現在與未來，讀懂命運留下的暗號。</p>
             {stage === "welcome" ? (
-              <button className="primary-button" onClick={() => setStage("form")}>開始占卜 <span>✦</span></button>
+              <button className="primary-button" onClick={() => setStage("form")}>接受艾拉的邀請 <span>⚜</span></button>
             ) : (
               <form className="question-card" onSubmit={beginShuffle}>
                 <div className="two-fields">
                   <label>怎麼稱呼你？<input value={name} onChange={(e) => setName(e.target.value)} placeholder="名字或暱稱" required maxLength={30} /></label>
                   <label>你的生日<input type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} required /></label>
                 </div>
-                <label>你想問星星什麼？<textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="例如：我該如何面對目前工作上的轉變？" required maxLength={240} /></label>
-                <button className="primary-button full" type="submit">讓我們洗牌吧 <span>☾</span></button>
+                <label>今晚，你想向命運詢問什麼？<textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="例如：我該如何面對目前工作上的轉變？" required maxLength={240} /></label>
+                <button className="primary-button full" type="submit">請艾拉為我洗牌 <span>⚜</span></button>
                 <small>你的資料只用於本次解讀。塔羅是自我探索的工具，不取代醫療、法律或財務建議。</small>
               </form>
             )}
